@@ -1,0 +1,6 @@
+Revision history for Perl extension CGI::Test::Input::Custom.
+
+0.01  Wed Jun 25 15:33:48 2008
+	- original version; created by h2xs 1.23 with options
+		-AXn CGI::Test::Input::Custom
+
