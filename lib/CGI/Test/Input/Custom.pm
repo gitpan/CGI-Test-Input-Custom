@@ -1,6 +1,6 @@
 package CGI::Test::Input::Custom;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use strict;
 use warnings;
@@ -17,7 +17,7 @@ sub new {
     my ($class, %args) = @_;
     my $this = bless {}, $class;
     $this->_init;
-    $this->{ctic_mime_type} = _firstdef(delete $args{-mime_type}, 'application/octet-stream');
+    $this->{_ctic_mime_type} = _firstdef(delete $args{-mime_type}, 'application/octet-stream');
     $this->{data} = _firstdef(delete $args{-content}, '');
     %args and croak "unsupported constructor argument(s) ".join(', ', keys %args);
     $this;
