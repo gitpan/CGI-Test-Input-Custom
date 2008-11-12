@@ -1,4 +1,6 @@
 
+require 5.008;
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile( NAME => 'CGI::Test::Input::Custom',

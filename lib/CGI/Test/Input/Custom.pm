@@ -1,10 +1,11 @@
 package CGI::Test::Input::Custom;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use warnings;
 use Carp;
+use Encode qw(encode);
 
 use base 'CGI::Test::Input';
 
@@ -18,8 +19,10 @@ sub new {
     my $this = bless {}, $class;
     $this->_init;
     $this->{_ctic_mime_type} = _firstdef(delete $args{-mime_type}, 'application/octet-stream');
-    $this->{data} = _firstdef(delete $args{-content}, '');
+    $this->{_data_decoded} = _firstdef(delete $args{-content}, '');
+    $this->{_encoding} = _firstdef(delete $args{-encoding}, 'utf8');
     %args and croak "unsupported constructor argument(s) ".join(', ', keys %args);
+    $this->{stale} = 1;
     $this;
 }
 
@@ -38,14 +41,18 @@ sub set_mime_type {
 
 sub mime_type { shift->{_ctic_mime_type} }
 
-sub _build_data { }
+sub _build_data {
+    my $this = shift;
+    encode($this->{_encoding}, $this->{_data_decoded})
+}
 
 sub add_content {
     my $this = shift;
-    $this->{data} .= join('', @_);
+    $this->{_data_decoded} .= join('', @_);
+    $this->{stale} = 1;
 }
 
-sub length { length shift->{data} }
+
 
 1;
 __END__
@@ -64,7 +71,7 @@ CGI::Test::Input::Custom - send custom data to CGIs for testing
 
   my $input = CGI::Test::Input::Custom->new();
 
-  $input->set_mime_type('text/xml');
+  $input->set_mime_type('text/xml', -encoding => 'utf8');
 
   $input->add_content(<<EOX);
   <?xml version="1.0" encoding="UTF-8"?>
@@ -102,6 +109,13 @@ mime type of the content. Default is C<application/octect-stream>.
 =item -content => $data
 
 data to send in the request
+
+=item -content => $encoding
+
+encoding to use when converting data from internal perl representation
+to on-the-wire format. Default is utf8.
+
+See L<Encode>.
 
 =back
 
